@@ -2,32 +2,39 @@ from dotenv import load_dotenv
 from os.path import join, dirname
 import os
 from flask import Flask, request, abort
-
+from linebot.exceptions import LineBotApiError
+import line.line as handle
 from linebot import (
     LineBotApi, WebhookHandler
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
-
+from linebot.exceptions import (
+    InvalidSignatureError
+)
 load_dotenv(join(dirname(__file__), '.env'))
 
 app = Flask(__name__)
 
-channel_secret = os.environ['LINE_CHANNEL_SECRET']
-channel_access_token = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
+# channel_secret = os.environ['LINE_CHANNEL_SECRET']
+# channel_access_token = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
 
-line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
-handler = WebhookHandler('YOUR_CHANNEL_SECRET')
+line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
+handler = WebhookHandler(os.environ['LINE_CHANNEL_SECRET'])
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text))
+# @handler.add(MessageEvent, message=TextMessage)
+# def handle_message(event):
+#     line_bot_api.reply_message(
+#         event.reply_token,
+#         TextSendMessage(text=event.message.text))
 
-def handle(body, signature):
-    handler.handle(body, signature)
+# def handle(body, signature):
+#     handler.handle(body, signature)
+
+@app.route("/")
+def hello_world():
+    return "hello world!"
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -39,9 +46,11 @@ def callback():
     app.logger.info("Request body: " + body)
     # handle webhook body
     try:
-        handler.handle(body, signature)
-    # except InvalidSignatureError:
-    #     abort(400)
+        print("success")
+        handle.handle(body, signature)
+    except InvalidSignatureError:
+        print("invalid")
+        abort(400)
 
     return "OK"
  

@@ -11,14 +11,18 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
 
-channel_secret = os.environ['LINE_CHANNEL_SECRET']
-channel_access_token = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
+load_dotenv(join(dirname(__file__), '../.env'))
+
+line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
+handler = WebhookHandler(os.environ['LINE_CHANNEL_SECRET'])
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print(event)
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=event.message.text))
 
 def handle(body, signature):
+    print('call')
     handler.handle(body, signature)
