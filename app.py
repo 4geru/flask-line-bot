@@ -3,7 +3,7 @@ from os.path import join, dirname
 import os
 from flask import Flask, request, abort
 from linebot.exceptions import LineBotApiError
-import line.line as handle
+import line.line as line
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -36,6 +36,10 @@ handler = WebhookHandler(os.environ['LINE_CHANNEL_SECRET'])
 def hello_world():
     return "hello world!"
 
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    line.return_message(event)
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -47,7 +51,7 @@ def callback():
     # handle webhook body
     try:
         print("success")
-        handle.handle(body, signature)
+        handler.handle(body, signature)
     except InvalidSignatureError:
         print("invalid")
         abort(400)

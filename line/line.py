@@ -16,8 +16,7 @@ load_dotenv(join(dirname(__file__), '../.env'))
 line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['LINE_CHANNEL_SECRET'])
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
+def return_message(event):
     print(event)
     line_bot_api.reply_message(
         event.reply_token,
